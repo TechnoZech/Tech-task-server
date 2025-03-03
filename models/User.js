@@ -1,15 +1,22 @@
-const db = require("../config/db");
+const db = require('../config/db');
 
-const createUser = async (firstName, lastName, email, password, role) => {
-  return db.execute(
-    "INSERT INTO users (first_name, last_name, email, password, role) VALUES (?, ?, ?, ?, ?)",
-    [firstName, lastName, email, password, role]
-  );
+const createUserTable = () => {
+    const sql = `
+    CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        firstName VARCHAR(50),
+        lastName VARCHAR(50),
+        email VARCHAR(100) UNIQUE,
+        password VARCHAR(255),
+        role ENUM('admin', 'customer'),
+        isVerified BOOLEAN DEFAULT false,
+        verificationToken VARCHAR(255)
+    )`;
+    db.query(sql, (err) => {
+        if (err) throw err;
+        console.log("User Table Created");
+    });
 };
 
-const getUserByEmail = async (email) => {
-  const [rows] = await db.execute("SELECT * FROM users WHERE email = ?", [email]);
-  return rows[0];
-};
-
-module.exports = { createUser, getUserByEmail };
+createUserTable();
+module.exports = db;
